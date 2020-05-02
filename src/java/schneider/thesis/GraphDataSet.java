@@ -26,6 +26,11 @@ public class GraphDataSet {
     this.path = System.getProperty("user.dir") + "/../Graphs/" + name + "/";
   }
 
+  public void displayGraph(int index) {
+    Graph g = this.graphs.get(index);
+    g.display(String.valueOf(index));
+  }
+
   /**
    * Initialise the DataSet using the files
    * @throws IOException
@@ -48,6 +53,10 @@ public class GraphDataSet {
 
     String lastIndicator = null;
     String lastEdge = null;
+
+    // Number of the vertex in the dataSet
+    int vertexNumber = 1;
+    int vertexesPassed = 0;
 
     for (int i = 0; i < graphCount; i++) {
       int label = this.getLabelForGraph(i);
@@ -74,10 +83,12 @@ public class GraphDataSet {
 
         if(graphNumber < dataInt) {
           // We encountered a new Graph Number
+          lastIndicator = indicator;
           break;
         }
         vertexCount++;
-        nodes.add(indicator);
+        nodes.add(String.valueOf(vertexNumber));
+        vertexNumber++;
 
         indicator = readerIndicator.readLine();
       }
@@ -96,15 +107,21 @@ public class GraphDataSet {
       // Add all edges until we encounter one, that is between two nodes that are not in the current graph
       while(edge != null) {
         String[] srcDest = edge.split(",");
-        if(!nodes.contains(srcDest[0])) {
+        if(!nodes.contains(srcDest[0])){
+          lastEdge = edge;
           break;
         }
+        
         // add the edge, strip of all whitespaces we may encounter
-        graph.addEdge(Integer.valueOf(srcDest[0].replaceAll("\\s+","")), Integer.valueOf(srcDest[1].replaceAll("\\s+","")));
+        int src = Integer.valueOf(srcDest[0].replaceAll("\\s+","")) - 1;
+        int dest = Integer.valueOf(srcDest[1].replaceAll("\\s+","")) - 1;
+        
+        graph.addEdge(src - vertexesPassed, dest - vertexesPassed);
         edge = readerA.readLine();
       }
 
       this.graphs.add(graph);
+      vertexesPassed += vertexCount;
     }
     readerIndicator.close();
     readerA.close();

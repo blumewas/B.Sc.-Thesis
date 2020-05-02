@@ -1,5 +1,6 @@
 package schneider.thesis;
 
+import org.graphstream.graph.implementations.SingleGraph;
 /**
  * Graph Class inspired by
  * https://algorithms.tutorialhorizon.com/graph-implementation-adjacency-matrix-set-3/
@@ -47,5 +48,24 @@ public class Graph {
     this.graph[dest][src] = 0;
 
     return this;
+  }
+
+  public void display(String id) {
+    SingleGraph graph = new SingleGraph(id);
+
+    graph.addAttribute("ui.label", this.classLabel);
+    for(int i = 0; i < this.graph.length; i++) {
+      graph.addNode(String.valueOf(i));
+    }
+    for(int i = 0; i < this.graph.length; i++) {
+      for(int j = 0; j < this.graph[i].length; j++) {
+        if(graph.getEdge(i + "-" + j) == null) {
+          if(this.graph[i][j] == 1) {
+            graph.addEdge(j + "-" + i, String.valueOf(i), String.valueOf(j));
+          }
+        }
+      }
+    }
+    graph.display();
   }
 }
