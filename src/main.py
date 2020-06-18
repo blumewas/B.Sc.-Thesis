@@ -1,3 +1,6 @@
-from miner import graphset_projection
+from miner import gSpan
+from torch_geometric.datasets import TUDataset
 
-graphset_projection('AIDS', {})
+dataset = TUDataset(root='/tmp/Tox21_p53_testing', name='Tox21_p53_testing')
+
+freq_subgraphs = gSpan(dataset, {})
