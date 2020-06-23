@@ -1,18 +1,27 @@
 import torch as th
-import numpy as np
+import convert
+import iso_test
+
+import networkx as nx
+
 from dfs_code import DFSCode
 from torch_geometric.data import Data
 from datasets import ReducedDataset
 
+import matplotlib.pyplot as plt
+
 min_occur = 1000
 
-def gSpan(dataset, result):
+def gSpan(dataset, result, support):
   # lines 1 - 3
   reduced_dataset, node_relabel_dict, edge_relabel_dict = prepare_dataset(dataset)
+
   print(node_relabel_dict)
-  print(edge_relabel_dict)
-  reduced_dataset.wrap_up()
-  print(reduced_dataset.loader)
+  # Enumerate frequent one edge graphs. line: 
+  freq_one_edgers = enumerate_one_edgers(reduced_dataset.data_list, support)
+  for freq in freq_one_edgers:
+    print(freq)
+  
   return result
 
 def prepare_dataset(dataset):
@@ -133,11 +142,14 @@ def prepare_dataset(dataset):
         from_node = edge_index[0][i]
         to_node = edge_index[1][i]
         if from_node not in node_remove_list and to_node not in node_remove_list:
-          from_nodes.append(from_node)
-          to_nodes.append(to_node)
+          f_new = from_node - get_smaller_removed(from_node, node_remove_list)
+          t_new = to_node - get_smaller_removed(to_node, node_remove_list)
+          from_nodes.append(f_new)
+          to_nodes.append(t_new)
         else:
           edge_remove_list.append(i)
     new_edges = th.tensor([from_nodes, to_nodes], dtype=th.long)
+    
     new_data.edge_index = new_edges
     # Remove edge_labels
     edge_remove_list = sorted(edge_remove_list)
@@ -151,8 +163,7 @@ def prepare_dataset(dataset):
 
 def graphset_projection(dataset, result):
   
-  # Enumerate frequent one edge graphs
-  freq_one_edgers = enumerate_one_edgers(dataset)
+ 
 
   # sort one_edgers in lexicographic order
 
@@ -162,17 +173,48 @@ def graphset_projection(dataset, result):
 def subgraph_mining(dataset, result, s):
   print('Mining')
 
-def enumerate_one_edgers(dataset):
-  dfs_list = []
-  for G,l in dataset:
-    print('Enumerating')
-    for edge in G.edata['_ID']:
-      subG = G.edge_subgraph([edge])
+def enumerate_one_edgers(dataset, support):
+  """Enumerates all one_edgers
 
-      vids = subG.ndata['_ID']
-      i = vids[0]
-      if vids.len == 1:
-        j = i
-      else:
-        j = vids[1]
-      code = DFSCode(i, j, '', '', '')
+    1. Iterate all edges
+    2. get labels of from_node, to_node and edge
+    3. Create DFSCode and add it to set
+  """
+  dfs_list = set()
+  tested = set()
+  for graph_data in dataset:
+    edge_index = graph_data.edge_index
+    x = graph_data['x']
+    edge_attr = graph_data['edge_attr']
+    
+    for i in range(len(edge_index[0])):
+      from_node = edge_index[0][i]
+      to_node = edge_index[0][i]
+      edge_label = edge_attr[i][0]
+      label_i = x[from_node][0]
+      label_j = x[to_node][0]
+
+      code = DFSCode(0, 1, label_i, edge_label, label_j)
+      # only consider if the candidate was not already tested
+      if code in tested:
+        break
+      # Create nx.Graph for iso test
+      one_edger = nx.Graph()
+      one_edger.add_node(from_node, label=label_i)
+      one_edger.add_node(to_node, label=label_j)
+      one_edger.add_edge(from_node, to_node, label=edge_label)
+      # only save the one edger if it is frequent
+      if iso_test.is_freq(one_edger, dataset, support):
+        code = DFSCode(0, 1, label_i, edge_label, label_j)
+        dfs_list.add(code)
+      tested.add(code)
+  
+  return dfs_list
+
+def get_smaller_removed(node, remove_list):
+  count = 0
+  for r in remove_list:
+    if r < node:
+      count += 1
+  
+  return count

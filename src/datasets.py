@@ -8,8 +8,5 @@ class ReducedDataset:
     def add(self, graph):
       self.data_list.append(graph)
 
-    def wrap_up(self):
-      self.loader = DataLoader(self.data_list)
-
     def __len__(self):
       return len(self.data_list)

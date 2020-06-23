@@ -17,8 +17,8 @@ class DFSCode:
   def __eq__(self, other):
     if not self._is_valid_operand(other):
       return NotImplemented
-    return ((self.lastname.lower(), self.firstname.lower()) ==
-      (other.lastname.lower(), other.firstname.lower()))
+    return ((self.i, self.j, self.label_i, self.edge_label, self.label_j) ==
+      (other.i, other.j, other.label_i, other.edge_label, other.label_j))
   
   def __lt__(self, other):
     if not self._is_valid_operand(other):
@@ -27,4 +27,9 @@ class DFSCode:
       return self.j < other.j
     if self.i < self.j:
       return self.j == other.i
-    
+
+  def __hash__(self):
+    return hash('i{0} j{1} label_i{2} edge_label{3} label_j{4}'.format(self.i, self.j, self.label_i, self.edge_label, self.label_j)) 
+  
+  def __str__(self):
+    return '({0}, {1}, {2}, {3}, {4})'.format(self.i, self.j, self.label_i, self.edge_label, self.label_j)
