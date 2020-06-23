@@ -16,12 +16,13 @@ def gSpan(dataset, result, support):
   # lines 1 - 3
   reduced_dataset, node_relabel_dict, edge_relabel_dict = prepare_dataset(dataset)
 
-  print(node_relabel_dict)
   # Enumerate frequent one edge graphs. line: 
   freq_one_edgers = enumerate_one_edgers(reduced_dataset.data_list, support)
-  for freq in freq_one_edgers:
-    print(freq)
   
+  # Init result with one edgers in DFS lexicographic order
+  freq_one_edgers = sorted(freq_one_edgers)
+  result = freq_one_edgers
+
   return result
 
 def prepare_dataset(dataset):
@@ -170,8 +171,6 @@ def graphset_projection(dataset, result):
   # add all frequent_one_edge_graphs to the result
   result = freq_one_edgers
 
-def subgraph_mining(dataset, result, s):
-  print('Mining')
 
 def enumerate_one_edgers(dataset, support):
   """Enumerates all one_edgers
