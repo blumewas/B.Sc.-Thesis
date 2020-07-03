@@ -20,12 +20,14 @@ def gSpan(dataset, result, support):
   freq_one_edgers = enumerate_one_edgers(reduced_dataset.data_list, support)
   # Init result with one edgers in DFS lexicographic order
   freq_one_edgers = sorted(freq_one_edgers)
-  result = freq_one_edgers
 
-  for one_edger in result:
+  for one_edger in freq_one_edgers:
+    result.append([one_edger])
+
+  for one_edger in freq_one_edgers:
     start = one_edger # init s with e
-    reduced_set = get_containing_graphs(start, reduced_dataset.data_list) # get the graphs that contain our one_edger
-    subgraph_mining(reduced_set, result, start, support) # start mining_subprocedure
+    contain_list = get_containing_graphs(start, reduced_dataset.data_list) # get the graphs that contain our one_edger in NetworkX format
+    subgraph_mining(contain_list, result, [start], support) # start mining_subprocedure
 
     # remove all edges with the same DFS_Code (label wise) in all Graphs of the DataSet
     reduced_dataset.remove_edge(one_edger)
@@ -37,8 +39,46 @@ def gSpan(dataset, result, support):
 
   return result
 
-def subgraph_mining(dataset, result, start, support):
-  print('mining')
+def subgraph_mining(dataset, result, dfs_code, support):
+  """ Subprocedure to generate our Graphs recursively
+  
+    dataset, the dataset to search in
+    result, the current result that contains already discovered freq_subgraphs
+    dfs_code, the current graph in DFS_Code representation we want to extend
+    support, the support threshhold for a graph to be considered as frequent
+   """
+  # TODO
+  # check if dfs_code is min(dfs_code) line 1-2
+  if True == False:
+    return
+
+  if len(dfs_code) > 1:
+    result.append(dfs_code)
+
+  # generate all candidates which start can be extended with, line 4
+  candidates = generate_candidates(dfs_code, dataset) # Graphs in NetworkX format
+
+  for c in candidates:
+    # check if candidate c is frequent
+    if iso_test.is_freq(c, dataset, support, False):
+      # call subroutine again with startpoint c
+      # TODO: convert c to DFS_Code list
+      return subgraph_mining(dataset, result, c, support)
+
+def generate_candidates(dfs_codes, dataset):
+  """ Generate all candidates which can expand our current dfs_code """
+  candidates = []
+  for nx_graph in dataset:
+    edges = nx_graph.edges
+    nodes = nx_graph.nodes
+    # Use DFS to search in nx_graph for current structure
+    # TODO
+    for from_node, to_node in edges:
+      edge_label = edges[from_node, to_node]['label']
+      
+      # Expand current structures dfs_code
+
+  return candidates
 
 def prepare_dataset(dataset):
   """Prepares the dataSet of graphs for structure mining
@@ -191,7 +231,7 @@ def enumerate_one_edgers(dataset, support):
     x = graph_data['x']
     edge_attr = graph_data['edge_attr']
     
-    for i in range(len(edge_index[0])):
+    for i in range(graph_data.num_edges):
       from_node = edge_index[0][i]
       to_node = edge_index[1][i] # edge_index is two arrays, first is from_node, second is to_node
       edge_label = edge_attr[i][0]
@@ -216,20 +256,19 @@ def enumerate_one_edgers(dataset, support):
   return dfs_list
 
 def get_containing_graphs(edge, dataset):
-  """ Get all graphs that contain the DFS """
+  """ Get all graphs that contain the DFS in networkX foramt """
   dfs_graph = nx.Graph()
   dfs_graph.add_node(edge.i, label=edge.label_i)
   dfs_graph.add_node(edge.j, label=edge.label_j)
   dfs_graph.add_edge(edge.i, edge.j, label=edge.edge_label)
 
-  graph_list = set()
+  graph_list = []
   for graph_data in dataset:
     nx_graph = convert.geometric_to_nx(graph_data)
     if iso_test.subgraph_isomorphism(nx_graph, dfs_graph):
-      graph_list.add(nx_graph)
+      graph_list.append(nx_graph)
 
   return graph_list
-
 
 def get_smaller_removed(node, remove_list):
   count = 0

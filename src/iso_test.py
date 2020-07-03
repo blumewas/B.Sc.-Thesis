@@ -14,14 +14,17 @@ def graph_isomorphism(graph1, graph2):
   matcher = iso.GraphMatcher(graph1, graph2, node_match=nm, edge_match=em)
   return matcher.is_isomorphic()
 
-def is_freq(candidate, dataset, support):
+def is_freq(candidate, dataset, support, convert=True):
   count = 0
   tested = 0
   for graph_data in dataset:
     if count/len(dataset) >= support:
       return True
 
-    G = convert.geometric_to_nx(graph_data)
+    if convert:
+      G = convert.geometric_to_nx(graph_data)
+    else:
+      G = candidate
     if subgraph_isomorphism(G, candidate):
       count += 1
     tested += 1
