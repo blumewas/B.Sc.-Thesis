@@ -13,3 +13,11 @@ def geometric_to_nx(graph_data):
     G.add_edge(edge_index[0][i], edge_index[1][i], label=edge_attr[i][0])
   
   return G
+
+def geometric_to_nx_dataset(dataset):
+  graph_list = set()
+  for graph_data in dataset:
+    nx_graph = convert.geometric_to_nx(graph_data)
+    graph_list.add(nx_graph)
+  
+  return graph_list

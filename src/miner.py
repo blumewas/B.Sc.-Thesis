@@ -18,12 +18,27 @@ def gSpan(dataset, result, support):
 
   # Enumerate frequent one edge graphs. line: 
   freq_one_edgers = enumerate_one_edgers(reduced_dataset.data_list, support)
-  
   # Init result with one edgers in DFS lexicographic order
   freq_one_edgers = sorted(freq_one_edgers)
   result = freq_one_edgers
 
+  for one_edger in result:
+    start = one_edger # init s with e
+    reduced_set = get_containing_graphs(start, reduced_dataset.data_list) # get the graphs that contain our one_edger
+    subgraph_mining(reduced_set, result, start, support) # start mining_subprocedure
+
+    # remove all edges with the same DFS_Code (label wise) in all Graphs of the DataSet
+    reduced_dataset.remove_edge(one_edger)
+
+    # Check if the count of the remaining Graphs is lower then the support
+    remaining_graphs = len(reduced_dataset)
+    if remaining_graphs/len(dataset) < support:
+      break
+
   return result
+
+def subgraph_mining(dataset, result, start, support):
+  print('mining')
 
 def prepare_dataset(dataset):
   """Prepares the dataSet of graphs for structure mining
@@ -162,16 +177,6 @@ def prepare_dataset(dataset):
     
   return reduced_dataset, node_relabel_dict, edge_relabel_dict
 
-def graphset_projection(dataset, result):
-  
- 
-
-  # sort one_edgers in lexicographic order
-
-  # add all frequent_one_edge_graphs to the result
-  result = freq_one_edgers
-
-
 def enumerate_one_edgers(dataset, support):
   """Enumerates all one_edgers
 
@@ -188,7 +193,7 @@ def enumerate_one_edgers(dataset, support):
     
     for i in range(len(edge_index[0])):
       from_node = edge_index[0][i]
-      to_node = edge_index[0][i]
+      to_node = edge_index[1][i] # edge_index is two arrays, first is from_node, second is to_node
       edge_label = edge_attr[i][0]
       label_i = x[from_node][0]
       label_j = x[to_node][0]
@@ -209,6 +214,22 @@ def enumerate_one_edgers(dataset, support):
       tested.add(code)
   
   return dfs_list
+
+def get_containing_graphs(edge, dataset):
+  """ Get all graphs that contain the DFS """
+  dfs_graph = nx.Graph()
+  dfs_graph.add_node(edge.i, label=edge.label_i)
+  dfs_graph.add_node(edge.j, label=edge.label_j)
+  dfs_graph.add_edge(edge.i, edge.j, label=edge.edge_label)
+
+  graph_list = set()
+  for graph_data in dataset:
+    nx_graph = convert.geometric_to_nx(graph_data)
+    if iso_test.subgraph_isomorphism(nx_graph, dfs_graph):
+      graph_list.add(nx_graph)
+
+  return graph_list
+
 
 def get_smaller_removed(node, remove_list):
   count = 0
