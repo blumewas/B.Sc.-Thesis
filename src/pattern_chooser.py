@@ -12,7 +12,7 @@ def random_pattern(freq_pattern, pattern_count):
         pattern.append(freq_pattern[si])
     return pattern
 
-def graphlets(freq_pattern, minimum, maximum):
+def graphlets(freq_pattern, maximum, minimum=2):
     print_info('Using pattern language "graphlet-select". Searching subgraphs with min.inc. {} and max.inc. {} vertices'.format(minimum, maximum))
     pattern = []
     for fq in freq_pattern:
