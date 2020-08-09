@@ -13,6 +13,8 @@ The goal is to compare these pattern languages using criteria listed below.
 
 ### Installation
 
+pip install \[options\] -r requirements.txt
+
 ### Steps made by the Suite
 
 * works on Datasets using the ones provided by the TU Dortmund, using PyTorch-Geometric

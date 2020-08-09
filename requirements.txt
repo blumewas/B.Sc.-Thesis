@@ -1,0 +1,6 @@
+torch_geometric
+gspan_mining
+sklearn
+numpy
+networkx
+matplotlib
