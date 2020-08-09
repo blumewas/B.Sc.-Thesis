@@ -24,8 +24,8 @@ pip install \[options\] -r requirements.txt
 
 ### Pattern languages
 
-* Random: select a certain number of random sub-graphs from the mining result
-* Graphlet-like: select sub-graphs with nodes in a certain range e.g. 3 to 5 nodes
+* random: select a certain number of random sub-graphs from the mining result
+* graphlet-select: select sub-graphs with nodes in a certain range e.g. 3 to 5 nodes
 
 ### Compairing criteria
 

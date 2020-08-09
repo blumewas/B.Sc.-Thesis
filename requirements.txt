@@ -4,3 +4,4 @@ sklearn
 numpy
 networkx
 matplotlib
+termcolor

@@ -1,5 +1,7 @@
 import matplotlib.pyplot as plt
 import networkx as nx
+import numpy as np
+from termcolor import colored
 
 def plot(graph):
     vlbs = {v: vlb for v, vlb in graph.nodes.data('label')}
@@ -13,3 +15,13 @@ def plot(graph):
     nx.draw_networkx_edges(graph, pos, arrowstyle='->', arrowsize=10)
     nx.draw_networkx_edge_labels(graph, pos, edge_labels=elbs)
     plt.show()
+
+def sort_freq_by_support(freq_pattern, support):
+    freq_np = numpy.array(freq_pattern)
+    support_np = numpy.array(support)
+    sorted_inds = support_np.argsort()
+    return freq_np[sorted_inds]
+
+def print_info(info=str):
+    prefix = colored('Test-Suite:', 'blue')
+    print('{} {}'.format(prefix, info))
