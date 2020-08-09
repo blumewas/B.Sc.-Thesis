@@ -9,9 +9,11 @@ After the discovery of frequent patterns with a certain support we select featur
 
 The goal is to compare these pattern languages using criteria listed below.
 
-## Explanation
+## Our Test-Suite
 
-### Our Test-Suite
+### Installation
+
+### Steps made by the Suite
 
 * works on Datasets using the ones provided by the TU Dortmund, using PyTorch-Geometric
 * mines for freq. sub-graphs using this gSpan implementation
