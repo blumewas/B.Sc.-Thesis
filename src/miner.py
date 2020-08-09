@@ -3,6 +3,7 @@ import convert
 import iso_test
 
 import networkx as nx
+from networkx.algorithms import traversal
 
 from dfs_code import DFSCode
 from torch_geometric.data import Data
@@ -10,7 +11,7 @@ from datasets import ReducedDataset
 
 import matplotlib.pyplot as plt
 
-min_occur = 1000
+min_occur = 20
 
 def gSpan(dataset, result, support):
   # lines 1 - 3
@@ -49,35 +50,59 @@ def subgraph_mining(dataset, result, dfs_code, support):
    """
   # TODO
   # check if dfs_code is min(dfs_code) line 1-2
-  if True == False:
-    return
+  # if True == False:
+  #   return
 
   if len(dfs_code) > 1:
     result.append(dfs_code)
 
   # generate all candidates which start can be extended with, line 4
-  candidates = generate_candidates(dfs_code, dataset) # Graphs in NetworkX format
+  candidates = generate_candidates(dfs_code, dataset) # returns DFS_Codes of the canidates in priority
 
   for c in candidates:
+    dfs_code.append(c)
     # check if candidate c is frequent
-    if iso_test.is_freq(c, dataset, support, False):
+    nx_candidate = convert.dfs_to_nx(dfs_code)
+    if iso_test.is_freq(nx_candidate, dataset, support, False):
       # call subroutine again with startpoint c
-      # TODO: convert c to DFS_Code list
-      return subgraph_mining(dataset, result, c, support)
+      return subgraph_mining(dataset, result, dfs_code, support)
 
 def generate_candidates(dfs_codes, dataset):
   """ Generate all candidates which can expand our current dfs_code """
-  candidates = []
+  candidates = set()
+  depth = len(dfs_codes) + 1
   for nx_graph in dataset:
-    edges = nx_graph.edges
     nodes = nx_graph.nodes
-    # Use DFS to search in nx_graph for current structure
-    # TODO
-    for from_node, to_node in edges:
-      edge_label = edges[from_node, to_node]['label']
-      
-      # Expand current structures dfs_code
+    edges = nx_graph.edges
+    # generate a DFS_Tree for each node in the sub_graph
+    for node in nodes:
+      T = nx.dfs_tree(nx_graph, source=node, depth_limit=depth)
+      paths = []
 
+      # Get the paths from the root(node) to all tree nodes and save the ones that may help expand our graph
+      for tree_node in T.nodes:
+        if T.out_degree(tree_node) == 0:
+          path = nx.shortest_path(T, node, tree_node)
+          if len(path) == depth + 1:
+            paths.append(path)
+
+      # TODO validate if the path is in our DFS Code for expantion 
+
+      # iterate all valid paths generate the DFSCodes from the leafs neighbors
+      for path in paths:
+        neighbors = nx_graph.neighbors(path[-1])
+        
+      # TODO try to grow in growth priority order
+
+      # if the path has two edges go tho the root
+
+      # if the path has three edges try the second
+
+      # grow from the current depth
+
+      # grow from first node
+
+      # grow from second node
   return candidates
 
 def prepare_dataset(dataset):
@@ -277,3 +302,14 @@ def get_smaller_removed(node, remove_list):
       count += 1
   
   return count
+
+def getHighestIndexInCode(dfs_code):
+  highest = 0
+  for code in dfs_code:
+    if code.j > code.i:
+      if code.j > highest:
+        highest = code.j
+    else:
+      if code.i > highest:
+        highest = code.i
+  return highest

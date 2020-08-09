@@ -21,3 +21,12 @@ def geometric_to_nx_dataset(dataset):
     graph_list.add(nx_graph)
   
   return graph_list
+
+def dfs_to_nx(code_list):
+  G = nx.Graph()
+  for dfs_code in code_list:
+    G.add_node(dfs_code.i, label=dfs_code.label_i)
+    G.add_node(dfs_code.j, label=dfs_code.label_j)
+    G.add_edge(dfs_code.i, dfs_code.j, label=dfs_code.edge_label)
+
+  return G
