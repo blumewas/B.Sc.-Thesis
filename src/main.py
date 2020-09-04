@@ -24,7 +24,7 @@ warnings.filterwarnings('once', 'Solver terminated early.*')
 warnings.filterwarnings('once', category = ConvergenceWarning)
 
 name = 'MUTAG'
-root = '/tmp/{}'.format(name)
+root = './tmp/{}'.format(name)
 
 dataset = TUDataset(root=name, name=name)
 #dataset = dataset.shuffle()
@@ -55,7 +55,7 @@ print_info("Finished mining. Found {} freq. subgraphs".format(len(nx_freq)))
 # Pattern language get random pattern
 # kernel = pattern_chooser.random_pattern(nx_freq, 50)
 # pattern language graphlet-select, graphs with nodes in a certain range
-kernel = pattern_chooser.graphlets(nx_freq, 4)
+kernel = pattern_chooser.graphlets(nx_freq, 3)
 
 # get sample vectors
 print_info('Creating the binary vectors representing a graph')
