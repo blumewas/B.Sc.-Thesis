@@ -4,8 +4,10 @@ import numpy as np
 from termcolor import colored
 import os
 from os import path
+from datetime import datetime
 
 cwd = os.getcwd()
+run_ts = datetime.now()
 
 def plot(graph):
     vlbs = {v: vlb for v, vlb in graph.nodes.data('label')}
@@ -35,8 +37,7 @@ def print_info(info, ds_name):
     if not os.path.exists(p):
         os.mkdir(p)
 
-    run_count = sum(path.isdir(i) for i in os.listdir(p))
-    run_folder = path.join(p, 'run_{}'.format(run_count))
+    run_folder = path.join(p, 'run_{}'.format(run_ts.strftime("%Y-%b-%d %H-%M-%S")))
     if not os.path.exists(run_folder):
         os.mkdir(run_folder)
     
