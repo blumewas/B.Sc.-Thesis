@@ -2,6 +2,10 @@ import matplotlib.pyplot as plt
 import networkx as nx
 import numpy as np
 from termcolor import colored
+import os
+from os import path
+
+cwd = os.getcwd()
 
 def plot(graph):
     vlbs = {v: vlb for v, vlb in graph.nodes.data('label')}
@@ -22,6 +26,23 @@ def sort_freq_by_support(freq_pattern, support):
     sorted_inds = support_np.argsort()
     return freq_np[sorted_inds]
 
-def print_info(info=str):
+def print_info(info, ds_name):
     prefix = colored('Test-Suite:', 'blue')
-    print('{} {}'.format(prefix, info))
+    print_str = '{} {}'.format(prefix, info)
+    print(print_str)
+
+    p = path.join(cwd, 'runs')
+    if not os.path.exists(p):
+        os.mkdir(p)
+
+    run_count = sum(path.isdir(i) for i in os.listdir(p))
+    run_folder = path.join(p, 'run_{}'.format(run_count))
+    if not os.path.exists(run_folder):
+        os.mkdir(run_folder)
+    
+    f_name = '{}.log'.format(ds_name)
+    f_path = path.join(run_folder, f_name)
+
+    fil = open(f_path,"a+")
+    fil.write('{}{}'.format(info, '\n'))
+    fil.close()

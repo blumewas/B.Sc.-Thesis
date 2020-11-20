@@ -23,88 +23,59 @@ warnings.filterwarnings('once', 'ConvergenceWarning: Solver terminated early.*')
 warnings.filterwarnings('once', 'Solver terminated early.*')
 warnings.filterwarnings('once', category = ConvergenceWarning)
 
-name = 'MUTAG'
-root = './tmp/{}'.format(name)
+datasets = ['MUTAG', 'PTC_FM', 'NCI1', 'DD', 'PROTEINS']
 
-dataset = TUDataset(root=name, name=name)
-#dataset = dataset.shuffle()
-print_info('Starting Tests with dataset: {}, containing {} Graphs'.format(name, len(dataset)))
+for ds_name in datasets:
+    root = './tmp/{}'.format(ds_name)
 
-convert.dataset_to_datafile(dataset, name)
+    print_info('\n-----[BEGIN]-----\n', ds_name)
+    dataset = TUDataset(root=ds_name, name=ds_name)
+    print_info('Starting Tests with dataset: {}, containing {} Graphs'.format(ds_name, len(dataset)), ds_name)
 
-# create the run arguments for gSpan-python
-cwd = os.getcwd()
-f_name = '{}.data.txt'.format(name)
-f_path = path.join(cwd, 'graphs', f_name)
-args_str = '--min_support 100 -u 5 --directed TRUE --verbose False {ds}'.format(ds = f_path)
-FLAGS, _ = parser.parse_known_args(args=args_str.split())
+    convert.dataset_to_datafile(dataset, ds_name)
 
-# mine with gSpan
-print_info("Starting mining with gSpan-Algorithm")
-gs = main(FLAGS)
-gs_report = gs._report_df
-freq_support = gs_report['support'].to_numpy()
+    # create the run arguments for gSpan-python
+    cwd = os.getcwd()
+    f_name = '{}.data.txt'.format(ds_name)
+    f_path = path.join(cwd, 'graphs', f_name)
+    args_str = '--min_support {min} --directed TRUE --verbose FALSE {ds}'.format(ds = f_path, min=int(len(dataset) * 0.5))
+    FLAGS, _ = parser.parse_known_args(args=args_str.split())
 
-y = dataset.data.y.tolist()
-# the graph Respresentations in NetworkX
-nx_freq = convert.dfscode_to_networkX(gs._frequent_subgraphs)
-nx_dataset = convert.dataset_to_networkX(dataset)
+    # mine with gSpan
+    print_info("Starting mining with gSpan-Algorithm", ds_name)
+    gs = main(FLAGS)
+    gs_report = gs._report_df
 
-print_info("Finished mining. Found {} freq. subgraphs".format(len(nx_freq)))
+    freq_support = gs_report['support'].to_numpy()
+    isomorph_graphs = gs_report['isomorph_graphs']
+    num_vertices = gs_report['num_vert']
 
-# Pattern language get random pattern
-# kernel = pattern_chooser.random_pattern(nx_freq, 50)
-# pattern language graphlet-select, graphs with nodes in a certain range
-kernel = pattern_chooser.graphlets(nx_freq, 3)
+    pattern_count = len(gs_report)
+    y = dataset.data.y.tolist() # graph classes
 
-# get sample vectors
-print_info('Creating the binary vectors representing a graph')
-X = []
-for i in range(len(nx_dataset)):
-    nx_graph = nx_dataset[i]
+    print("\n")
 
-    binary_vec = []
-    for kernel_graph in kernel:
-        if iso_test.subgraph_isomorphism(nx_graph, kernel_graph):
-            binary_vec.append(1)
-        else: binary_vec.append(0)
-    
-    X.append(binary_vec)
+    print_info("Finished mining. Found {} freq. subgraphs".format(pattern_count), ds_name)
 
-# perform SVM accuracy testing
-print_info('Start training of our SVM')
-accuracies, predictions = perform_SVM(X, y)
-print_info(accuracies)
+    # Pattern language get random pattern
+    kernel_idxs = pattern_chooser.random_pattern(ds_name, pattern_count, int(0.3 * pattern_count))
+    # pattern language graphlet-select, graphs with nodes in a certain range
+    # kernel = pattern_chooser.graphlets(nx_freq, 3)
 
+    # get sample vectors
+    print_info('Creating the binary vectors representing the Graphs in the Dataset', ds_name)
+    X = []
+    for gid in range(1, len(dataset)+1):
+        bin_vec = []
+        for idx in kernel_idxs:
+            if gid in isomorph_graphs[idx]:
+                bin_vec.append(1)
+            else: bin_vec.append(0)
 
+        X.append(bin_vec)
 
-
-
-
-
-
-
-
-# Maybe needed later
-
-# # test our SVM with our testing data
-# nx_testing = convert.dataset_to_networkX(testing_set)
-# testing_class_labels = class_labels[trainig_size:]
-# binary_vec = []
-# sum_right_predictions = 0
-# for i in range(len(nx_testing)):
-#     nx_graph = nx_testing[i]
-#     g_label = testing_class_labels[i]
-
-#     binary_vec = []
-#     for kernel_graph in kernel:
-#         binary_vec.append(1) if iso_test.subgraph_isomorphism(nx_graph, kernel_graph) else binary_vec.append(0)
-    
-#     binary_vec = np.reshape(binary_vec, (1, -1))
-
-#     prediction = lin_clf.predict(binary_vec)[0]
-#     print_info('Prediction: {} Real label: {}'.format(prediction, g_label))
-#     if g_label == prediction:
-#         sum_right_predictions += 1
-
-# print_info('Kernel Size: {}; Tested with {} graphs; Correct predictions made: {}'.format(len(kernel), len(nx_testing), sum_right_predictions))
+    # perform SVM accuracy testing
+    print_info('Start training of our SVM', ds_name)
+    accuracies, predictions = perform_SVM(X, y)
+    print_info(accuracies, ds_name)
+    print_info('\n-----[END]-----\n', ds_name)
