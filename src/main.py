@@ -61,8 +61,14 @@ def test_random(ds_name, pattern_count, ds_graph_classes, isomorph_graphs):
         train_SVM(X, ds_graph_classes, ds_name)
         print_info('\n-----[End Test]-----\n', ds_name)
 
+def test_cork(ds_name, freq_pattern, isomorph_graphs, ds_graph_classes):
+    cork = pattern_chooser.CORK(ds_name, freq_pattern, isomorph_graphs, ds_graph_classes)
+    kernel_idxs = cork.get_pattern()
+    # X = get_sample_vectors(kernel_idxs, len(ds_graph_classes), isomorph_graphs, ds_name)
+    # train_SVM(X, ds_graph_classes, ds_name)
+    print_info('\n-----[End Test]-----\n', ds_name)
 
-def test(ds_name, minSup):
+def test(ds_name, minSup, params=''):
     root = './tmp/{}'.format(ds_name)
 
     print_info('\n-----[BEGIN]-----\n', ds_name)
@@ -75,9 +81,9 @@ def test(ds_name, minSup):
     cwd = os.getcwd()
     f_name = '{}.data.txt'.format(ds_name)
     f_path = path.join(cwd, 'graphs', f_name)
-    args_str = '--min_support {min} --directed TRUE --verbose FALSE {ds}'.format(ds = f_path, min=int(len(dataset) * minSup))
+    args_str = '--min_support {min} --directed TRUE {params} --verbose FALSE {ds}'.format(ds = f_path, min=int(len(dataset) * minSup), params=params)
     FLAGS, _ = parser.parse_known_args(args=args_str.split())
-
+    print(FLAGS)
     # mine with gSpan
     print_info("Starting mining with gSpan-Algorithm and minSup sigma = {}%".format(minSup * 100), ds_name)
     gs = main(FLAGS)
@@ -94,13 +100,23 @@ def test(ds_name, minSup):
 
     print_info("Finished mining. Found {} freq. subgraphs\n".format(pattern_count), ds_name)
     # perform test
-    test_random(ds_name, pattern_count, y, isomorph_graphs)
-    test_graphlet_select(ds_name, num_vertices, y, isomorph_graphs)
+    # test_random(ds_name, pattern_count, y, isomorph_graphs)
+    # test_graphlet_select(ds_name, num_vertices, y, isomorph_graphs)
+    test_cork(ds_name, gs._frequent_subgraphs, isomorph_graphs, y)
     
     print_info('\n-----[END]-----\n', ds_name)
 
-datasets = ['MUTAG', 'PTC_FM', 'NCI1', 'DD', 'PROTEINS']
+datasets = ['MUTAG']
+# , 'PTC_FM', 'NCI1', 'DD', 'PROTEINS']
+extra_params = {
+    'MUTAG': '-u 8 -mm 100',
+    'PTC_FM': '',
+    'NCI1': '-mm 10000',
+    'DD': '',
+    'PROTEINS': '' 
+}
 min_supps = [0.1, 0.3, 0.5]
 for ds_name in datasets:
     for min_sup in min_supps:
-        test(ds_name, min_sup)
+        params = extra_params[ds_name]
+        test(ds_name, min_sup, params)

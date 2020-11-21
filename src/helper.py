@@ -37,7 +37,7 @@ def print_info(info, ds_name):
     if not os.path.exists(p):
         os.mkdir(p)
 
-    run_folder = path.join(p, 'run_{}'.format(run_ts.strftime("%Y-%b-%d %H-%M-%S")))
+    run_folder = path.join(p, 'run_{}'.format(run_ts.strftime("%Y-%m-%d %H-%M-%S")))
     if not os.path.exists(run_folder):
         os.mkdir(run_folder)
     
