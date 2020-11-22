@@ -104,6 +104,34 @@ def dataset_to_networkX(dataset):
         nx_dataset.append(G)
     return nx_dataset
 
+def dataset_to_vectors(isomorph_graphs, classes):
+    size = len(classes)
+    vecs = []
+    for gid in range(size):
+        bin_vec = []
+        for graphs in isomorph_graphs:
+            if gid in graphs:
+                bin_vec.append(1)
+            else: bin_vec.append(0)
+
+        vecs.append((classes[gid-1], bin_vec))
+    return vecs
+
+def dataset_to_vectors_freq(isomorph_graphs, classes, kernel_idxs):
+    size = len(classes)
+    # get sample vectors
+    vecs = []
+    for gid in range(size):
+        bin_vec = []
+        for idx in kernel_idxs:
+            if gid in isomorph_graphs[idx + 1]:
+                bin_vec.append(1)
+            else: bin_vec.append(0)
+
+        vecs.append((classes[gid-1], bin_vec))
+
+    return vecs
+
 def dfscode_to_networkX(freq_dfs):
     nx_freq = []
     for dfs_code in freq_dfs:

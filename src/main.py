@@ -27,7 +27,7 @@ def get_sample_vectors(kernel_idxs, ds_size, isomorph_graphs, ds_name):
     # get sample vectors
     print_info('Creating the binary vectors representing the Graphs in the Dataset', ds_name)
     X = []
-    for gid in range(1, ds_size+1):
+    for gid in range(ds_size):
         bin_vec = []
         for idx in kernel_idxs:
             if gid in isomorph_graphs[idx]:
@@ -61,11 +61,12 @@ def test_random(ds_name, pattern_count, ds_graph_classes, isomorph_graphs):
         train_SVM(X, ds_graph_classes, ds_name)
         print_info('\n-----[End Test]-----\n', ds_name)
 
-def test_cork(ds_name, freq_pattern, isomorph_graphs, ds_graph_classes):
+def test_cork(ds_name, freq_pattern, isomorph_graphs, ds_graph_classes):    
     cork = pattern_chooser.CORK(ds_name, freq_pattern, isomorph_graphs, ds_graph_classes)
     kernel_idxs = cork.get_pattern()
-    # X = get_sample_vectors(kernel_idxs, len(ds_graph_classes), isomorph_graphs, ds_name)
-    # train_SVM(X, ds_graph_classes, ds_name)
+    # print_info(kernel_idxs, ds_name)
+    X = get_sample_vectors([x+1 for x in kernel_idxs], len(ds_graph_classes), isomorph_graphs, ds_name)
+    train_SVM(X, ds_graph_classes, ds_name)
     print_info('\n-----[End Test]-----\n', ds_name)
 
 def test(ds_name, minSup, params=''):
@@ -106,10 +107,9 @@ def test(ds_name, minSup, params=''):
     
     print_info('\n-----[END]-----\n', ds_name)
 
-datasets = ['MUTAG']
-# , 'PTC_FM', 'NCI1', 'DD', 'PROTEINS']
+datasets = ['MUTAG', 'PTC_FM', 'NCI1', 'DD', 'PROTEINS']
 extra_params = {
-    'MUTAG': '-u 8 -mm 100',
+    'MUTAG': '-u 8 -mm 10000',
     'PTC_FM': '',
     'NCI1': '-mm 10000',
     'DD': '',

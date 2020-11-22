@@ -22,12 +22,6 @@ def plot(graph):
     nx.draw_networkx_edge_labels(graph, pos, edge_labels=elbs)
     plt.show()
 
-def sort_freq_by_support(freq_pattern, support):
-    freq_np = numpy.array(freq_pattern)
-    support_np = numpy.array(support)
-    sorted_inds = support_np.argsort()
-    return freq_np[sorted_inds]
-
 def print_info(info, ds_name):
     prefix = colored('Test-Suite:', 'blue')
     print_str = '{} {}'.format(prefix, info)
