@@ -101,8 +101,8 @@ def test(ds_name, minSup, params=''):
 
     print_info("Finished mining. Found {} freq. subgraphs\n".format(pattern_count), ds_name)
     # perform test
-    # test_random(ds_name, pattern_count, y, isomorph_graphs)
-    # test_graphlet_select(ds_name, num_vertices, y, isomorph_graphs)
+    test_random(ds_name, pattern_count, y, isomorph_graphs)
+    test_graphlet_select(ds_name, num_vertices, y, isomorph_graphs)
     test_cork(ds_name, gs._frequent_subgraphs, isomorph_graphs, y)
     
     print_info('\n-----[END]-----\n', ds_name)

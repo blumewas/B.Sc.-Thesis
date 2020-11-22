@@ -50,7 +50,7 @@ class CORK:
             next_idx = -1
             i = 0
             while i <= len(self._freq):
-                if i == 100:
+                if i == len(self._freq):
                     break
                 if self.calc_cork(idxs, i) > self.calc_cork(idxs, next_idx):
                     next_idx = i
