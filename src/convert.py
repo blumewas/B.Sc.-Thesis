@@ -1,9 +1,10 @@
 import os
 from os import path
 import networkx as nx
+import pandas as pd
 
 cwd = os.getcwd()
-
+# Datafile
 def dataset_to_datafile(dataset, name):
     p = path.join(cwd, 'graphs')
     if not os.path.exists(p):
@@ -59,6 +60,50 @@ def dataset_to_datafile(dataset, name):
     f.close()
     return
 
+def dataset_to_vectors(isomorph_graphs, classes, kernel_idxs=[]):
+    size = len(classes)
+    vec_data = {'vector': [], 'class': []}
+    if (len(kernel_idxs) == 0):
+        for gid in range(size):
+            bin_vec = []
+            for graphs in isomorph_graphs:
+                if gid in graphs:
+                    bin_vec.append(1)
+                else: bin_vec.append(0)
+
+            vec_data['vector'].append(bin_vec)
+            vec_data['class'].append(classes[gid])
+    else:
+        for gid in range(size):
+            bin_vec = []
+            for idx in kernel_idxs:
+                if gid in isomorph_graphs[idx]:
+                    bin_vec.append(1)
+                else: bin_vec.append(0)
+            vec_data['vector'].append(bin_vec)
+            vec_data['class'].append(classes[gid])
+
+    return vec_data
+
+# NetworkX Converter
+def dfscode_to_networkX(freq_dfs):
+    nx_freq = []
+    for dfs_code in freq_dfs:
+        G = nx.DiGraph()
+        for edge in dfs_code:
+            u = edge.frm
+            v = edge.to
+            ulbl, elbl, vlbl = edge.vevlb
+            if ulbl != -1:
+                G.add_node(u, label=int(ulbl))
+            if vlbl != -1:
+                G.add_node(v, label=int(vlbl))
+
+            G.add_edge(u, v, label=int(elbl))
+        
+        nx_freq.append(G)
+
+    return nx_freq
 
 def dataset_to_networkX(dataset):
     
@@ -103,50 +148,3 @@ def dataset_to_networkX(dataset):
 
         nx_dataset.append(G)
     return nx_dataset
-
-def dataset_to_vectors(isomorph_graphs, classes):
-    size = len(classes)
-    vecs = []
-    for gid in range(size):
-        bin_vec = []
-        for graphs in isomorph_graphs:
-            if gid in graphs:
-                bin_vec.append(1)
-            else: bin_vec.append(0)
-
-        vecs.append((classes[gid-1], bin_vec))
-    return vecs
-
-def dataset_to_vectors_freq(isomorph_graphs, classes, kernel_idxs):
-    size = len(classes)
-    # get sample vectors
-    vecs = []
-    for gid in range(size):
-        bin_vec = []
-        for idx in kernel_idxs:
-            if gid in isomorph_graphs[idx + 1]:
-                bin_vec.append(1)
-            else: bin_vec.append(0)
-
-        vecs.append((classes[gid-1], bin_vec))
-
-    return vecs
-
-def dfscode_to_networkX(freq_dfs):
-    nx_freq = []
-    for dfs_code in freq_dfs:
-        G = nx.DiGraph()
-        for edge in dfs_code:
-            u = edge.frm
-            v = edge.to
-            ulbl, elbl, vlbl = edge.vevlb
-            if ulbl != -1:
-                G.add_node(u, label=int(ulbl))
-            if vlbl != -1:
-                G.add_node(v, label=int(vlbl))
-
-            G.add_edge(u, v, label=int(elbl))
-        
-        nx_freq.append(G)
-
-    return nx_freq

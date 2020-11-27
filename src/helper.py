@@ -8,6 +8,7 @@ from datetime import datetime
 
 cwd = os.getcwd()
 run_ts = datetime.now()
+ds_name=""
 
 def plot(graph):
     vlbs = {v: vlb for v, vlb in graph.nodes.data('label')}
@@ -22,7 +23,7 @@ def plot(graph):
     nx.draw_networkx_edge_labels(graph, pos, edge_labels=elbs)
     plt.show()
 
-def print_info(info, ds_name):
+def print_info(info):
     prefix = colored('Test-Suite:', 'blue')
     print_str = '{} {}'.format(prefix, info)
     print(print_str)
