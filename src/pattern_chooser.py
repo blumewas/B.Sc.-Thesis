@@ -34,7 +34,6 @@ class Graphlets:
         print_info('Found {} pattern matching the criterium'.format(len(pattern)))
         return pattern
 
-# TODO work on cork
 class CORK:
     def __init__(self, freq_pattern, isomorph_graphs, graph_classes):
         self._freq = freq_pattern
@@ -69,9 +68,11 @@ class CORK:
                     i = siblings_map[i]
                 else:
                     i += 1
-                
+            
             if self.calc_cork(idxs, next_idx) > self.calc_cork(idxs):
                 idxs.append(next_idx)
+                print_info(next_idx)
+                print_info(idxs)
             else:
                 con = False
         

@@ -9,7 +9,7 @@ import convert
 import helper
 from helper import print_info
 
-# gSpan Implementation 
+# gSpan Implementation
 from gspan_mining.config import parser
 from gspan_mining.main import main
 
@@ -33,7 +33,7 @@ def test(ds_name, minSup, params=''):
     cwd = os.getcwd()
     f_name = '{}.data.txt'.format(ds_name)
     f_path = path.join(cwd, 'graphs', f_name)
-    args_str = '--min_support {min} --directed TRUE {params} --verbose FALSE {ds}'.format(ds = f_path, min=int(len(dataset) * minSup), params=params)
+    args_str = '--min_support {min} --directed TRUE {params} --verbose FALSE --where TRUE {ds}'.format(ds = f_path, min=int(len(dataset) * minSup), params=params)
     FLAGS, _ = parser.parse_known_args(args=args_str.split())
  
     # mine with gSpan
@@ -43,21 +43,21 @@ def test(ds_name, minSup, params=''):
  
     # get info needed for testing
     ds_graph_classes = dataset.data.y.tolist() # graph classes
-
     isomorph_graphs = [gids for gids in _report['isomorph_graphs']]
 
     print_info("\nFinished mining. Found {} freq. subgraphs\n".format(len(_report)))
     # perform test
     _tests = tests.Tests(gs._frequent_subgraphs, isomorph_graphs, ds_graph_classes)
-    _tests.random()
-    _tests.graphlet_select()
-    _tests.cork()
+    _tests.run(random=False, graphlet=True, cork=True)
+    # _tests.random()
+    # _tests.graphlet_select()
+    # _tests.cork()
     
     print_info('\n-----[END]-----\n')
 
-datasets = ['MUTAG', 'PTC_FM', 'NCI1', 'DD', 'PROTEINS']
+datasets = ['MUTAG', 'NCI1', 'PTC_FM', 'DD', 'PROTEINS']
 extra_params = {
-    'MUTAG': '-u 8 -mm 10000',
+    'MUTAG': '-u 7 -mm 10000',
     'PTC_FM': '',
     'NCI1': '-mm 10000',
     'DD': '',

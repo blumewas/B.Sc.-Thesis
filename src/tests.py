@@ -16,6 +16,21 @@ class Tests:
         self._iso_map = isomorph_graphs
         self._ds_size = len(ds_graph_classes)
 
+    def run(self, random=False, graphlet=False, cork=False):
+        if random:
+            helper.tests_run += "random"
+        if graphlet:
+            helper.tests_run += "graphlet"
+        if cork:
+            helper.test_run += "cork"
+
+        if random:
+            self.random()
+        if graphlet:
+            self.graphlet_select()
+        if cork:
+            self.cork()
+
     def graphlet_select(self):
         # pattern language graphlet-select, graphs with nodes in a certain range
         _idxs = Graphlets(self._freq, 5, 3).get_pattern()
@@ -34,6 +49,7 @@ class Tests:
 
     def cork(self):    
         _idxs = CORK(self._freq, self._iso_map, self._ds_clss).get_pattern()
+        print_info("Selected {} pattern using CORK".format(len(_idxs)))
         print_info(_idxs)
         _ds = convert.dataset_to_vectors(self._iso_map, self._ds_clss, _idxs)
         test_SVM(_ds)

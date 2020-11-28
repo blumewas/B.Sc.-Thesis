@@ -9,6 +9,7 @@ from datetime import datetime
 cwd = os.getcwd()
 run_ts = datetime.now()
 ds_name=""
+tests_run=""
 
 def plot(graph):
     vlbs = {v: vlb for v, vlb in graph.nodes.data('label')}
@@ -32,11 +33,11 @@ def print_info(info):
     if not os.path.exists(p):
         os.mkdir(p)
 
-    run_folder = path.join(p, 'run_{}'.format(run_ts.strftime("%Y-%m-%d %H-%M-%S")))
+    run_folder = path.join(p, '{}'.format(ds_name))
     if not os.path.exists(run_folder):
         os.mkdir(run_folder)
     
-    f_name = '{}.log'.format(ds_name)
+    f_name = '{}-{}.log'.format(tests_run, run_ts.strftime("%y-%m-%d %H-%M-%S"))
     f_path = path.join(run_folder, f_name)
 
     fil = open(f_path,"a+")
