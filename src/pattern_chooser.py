@@ -39,17 +39,20 @@ class CORK:
         self._freq = freq_pattern
         self._isomorphic = isomorph_graphs
         self._ds_classes = graph_classes
+        _vecs = []
+        for i in graph_classes:
+            _vecs.append([])
+        self._ds = {'vector': _vecs, 'class': graph_classes}
 
     def get_pattern(self):
         print_info('Using CORK to mine discriminative freq. subgraphs.')
 
-        sorted_dfs_codes = sorted(self._freq)
         # init siblings_map
         siblings_map = [0] * len(self._freq)
         for i in range(len(siblings_map)):
-            curr_code = sorted_dfs_codes[i]
-            for j in range(i+1, len(sorted_dfs_codes)):
-                if len(sorted_dfs_codes[j]) <= len(curr_code):
+            curr_code = self._freq[i]
+            for j in range(i+1, len(self._freq)):
+                if len(self._freq[j]) <= len(curr_code):
                     siblings_map[i] = j
                     break
             if siblings_map[i] == 0:
@@ -61,31 +64,52 @@ class CORK:
             next_idx = -1
             i = 0
             while i < len(self._freq):
-                if self.calc_cork(idxs, i) > self.calc_cork(idxs, next_idx):
+                if self.calc_cork(i) > self.calc_cork(next_idx, initial=(len(idxs) == 0)):
                     next_idx = i
-
-                if self.max_cork(idxs, i) <= self.calc_cork(idxs, next_idx):
+                
+                if self.max_cork(i) <= self.calc_cork(next_idx):
+                    # print_info("Nextidx: {}".format(next_idx))
+                    # print_info("Before: {}".format(i))
                     i = siblings_map[i]
+                    # print_info("After: {}".format(i))
                 else:
                     i += 1
-            
-            if self.calc_cork(idxs, next_idx) > self.calc_cork(idxs):
+
+            print_info("selected {}".format(next_idx))
+            if self.calc_cork(next_idx) > self.calc_cork():
                 idxs.append(next_idx)
-                print_info(next_idx)
-                print_info(idxs)
+                self.extend_ds(next_idx, True)
+                print_info("selected {}".format(next_idx))
             else:
                 con = False
         
         return idxs
 
-    def max_cork(self, curr_pattern, g_idx):
-        selected = curr_pattern.copy()
-        selected.append(g_idx)
+    def extend_ds(self, idx, save=False):
+        if idx == -1:
+            return (self._ds['vector'], self._ds['class'])
+        size = len(self._ds_classes)
+        vec_data = []
+        
+        for gid in range(size):
+            bin_vec = self._ds['vector'][gid].copy()
+            
+            if gid in self._isomorphic[idx]:
+                bin_vec.append(1)
+            else: bin_vec.append(0)
 
+            vec_data.append(bin_vec)
+
+        if save:
+            self._ds['vector'] = vec_data
+        return (vec_data, self._ds_classes)
+
+    def max_cork(self, g_idx):
         equivalenz_classes = {}
-        _ds = convert.dataset_to_vectors(self._isomorphic, self._ds_classes, selected)
-        _vecs = _ds['vector']
-        _clss = _ds['class']
+        _vecs, _clss = self.extend_ds(g_idx)
+
+        max_cork = self.calc_cork(g_idx)
+
         for gid in range(len(_vecs)):
             g_vec = _vecs[gid]
             g_cls = _clss[gid]
@@ -94,11 +118,8 @@ class CORK:
                 equivalenz_classes[str_vec].append((g_cls, g_vec[-1]))
             else:
                 equivalenz_classes[str_vec] = [(g_cls, g_vec[-1])]
-        
-        max_cork = self.calc_cork(selected)
-
+                
         for key in equivalenz_classes:
-            # print(equivalenz_classes[key])
             a_hits = 0 # all hits with class 0
             a_misses = 0 # all misses with class 0
             b_hits = 0 # all hits with class 1
@@ -118,19 +139,15 @@ class CORK:
 
         return max_cork
 
-    def calc_cork(self, curr_pattern, added_idx=-1):
-        if len(curr_pattern) == 0:
+    def calc_cork(self, added_idx=-1, initial=False):
+        if initial:
             if added_idx == -1:
                 return float('-inf')
 
-        selected = curr_pattern.copy()
-        if added_idx != -1:
-            selected.append(added_idx)
         # calc
         equivalenz_classes = {}
-        _ds = convert.dataset_to_vectors(self._isomorphic, self._ds_classes, selected)
-        _vecs = _ds['vector']
-        _clss = _ds['class']
+        _vecs, _clss = self.extend_ds(added_idx)
+
         for gid in range(len(_vecs)):
             g_vec = _vecs[gid]
             g_cls = _clss[gid]
@@ -147,5 +164,4 @@ class CORK:
             b_instances = 0 # all with class 1
             if len(_cls) == 2:
                 cork += instances[0]  * instances[1] # if two classes are found in E_c here is the count for class 1
-
         return cork * -1

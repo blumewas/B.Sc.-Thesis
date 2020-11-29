@@ -18,13 +18,6 @@ class Tests:
 
     def run(self, random=False, graphlet=False, cork=False):
         if random:
-            helper.tests_run += "random"
-        if graphlet:
-            helper.tests_run += "graphlet"
-        if cork:
-            helper.test_run += "cork"
-
-        if random:
             self.random()
         if graphlet:
             self.graphlet_select()

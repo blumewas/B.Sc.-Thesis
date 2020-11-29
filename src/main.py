@@ -22,7 +22,15 @@ warnings.filterwarnings('once', 'Solver terminated early.*')
 warnings.filterwarnings('once', category = ConvergenceWarning)
 
 
-def test(ds_name, minSup, params=''):
+def test(ds_name, minSup, params='', random=False, graphlet=False, cork=False):
+    if len(helper.tests_run) == 0:
+        if random:
+            helper.tests_run += "random"
+        if graphlet:
+            helper.tests_run += "graphlet"
+        if cork:
+            helper.tests_run += "cork"
+    
     print_info('\n-----[BEGIN]-----\n')
     dataset = TUDataset(root='./tmp/{}'.format(ds_name), name=ds_name)
     print_info('Starting Tests with dataset: {}, containing {} Graphs'.format(ds_name, len(dataset)))
@@ -40,26 +48,24 @@ def test(ds_name, minSup, params=''):
     print_info("Starting mining with gSpan-Algorithm and minSup sigma = {}%".format(minSup * 100))
     gs = main(FLAGS)
     _report = gs._report_df
- 
+    _freq = [dfs for dfs in _report['dfs']]
+
     # get info needed for testing
     ds_graph_classes = dataset.data.y.tolist() # graph classes
     isomorph_graphs = [gids for gids in _report['isomorph_graphs']]
 
     print_info("\nFinished mining. Found {} freq. subgraphs\n".format(len(_report)))
     # perform test
-    _tests = tests.Tests(gs._frequent_subgraphs, isomorph_graphs, ds_graph_classes)
-    _tests.run(random=False, graphlet=True, cork=True)
-    # _tests.random()
-    # _tests.graphlet_select()
-    # _tests.cork()
+    _tests = tests.Tests(_freq, isomorph_graphs, ds_graph_classes)
+    _tests.run(random, graphlet, cork)
     
     print_info('\n-----[END]-----\n')
 
-datasets = ['MUTAG', 'NCI1', 'PTC_FM', 'DD', 'PROTEINS']
+datasets = ['NCI1', 'MUTAG', 'PTC_FM', 'DD', 'PROTEINS']
 extra_params = {
-    'MUTAG': '-u 7 -mm 10000',
+    'MUTAG': '-u 8 -mm 10000',
     'PTC_FM': '',
-    'NCI1': '-mm 10000',
+    'NCI1': '-u 12 -mm 10000',
     'DD': '',
     'PROTEINS': '' 
 }
@@ -68,4 +74,4 @@ for ds_name in datasets:
     helper.ds_name = ds_name
     for min_sup in min_supps:
         params = extra_params[ds_name]
-        test(ds_name, min_sup, params)
+        test(ds_name, min_sup, params, random=False, graphlet=False, cork=True)
