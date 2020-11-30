@@ -34,7 +34,8 @@ def test(ds_name, minSup, params='', random=False, graphlet=False, cork=False):
     print_info('\n-----[BEGIN]-----\n')
     dataset = TUDataset(root='./tmp/{}'.format(ds_name), name=ds_name)
     print_info('Starting Tests with dataset: {}, containing {} Graphs'.format(ds_name, len(dataset)))
-
+    if len(params) > 0:
+        print_info('Running with extra params: {}'.format(params))
     convert.dataset_to_datafile(dataset, ds_name)
 
     # create the run arguments for gSpan-python
@@ -61,15 +62,15 @@ def test(ds_name, minSup, params='', random=False, graphlet=False, cork=False):
     
     print_info('\n-----[END]-----\n')
 
-datasets = ['NCI1', 'MUTAG', 'PTC_FM', 'DD', 'PROTEINS']
+datasets = ['NCI1'] #, 'MUTAG', 'PTC_FM', 'DD', 'PROTEINS']
 extra_params = {
-    'MUTAG': '-u 8 -mm 10000',
-    'PTC_FM': '',
-    'NCI1': '-u 12 -mm 10000',
-    'DD': '',
-    'PROTEINS': '' 
+    'MUTAG': '-u 8 -mm 100',
+    'PTC_FM': '-mm 100',
+    'NCI1': '-u 12 -mm 100',
+    'DD': '-mm 100',
+    'PROTEINS': '-mm 100' 
 }
-min_supps = [0.1, 0.3, 0.5]
+min_supps = [0.1] #, 0.3, 0.5]
 for ds_name in datasets:
     helper.ds_name = ds_name
     for min_sup in min_supps:

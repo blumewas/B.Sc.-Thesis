@@ -3,13 +3,14 @@ import networkx as nx
 import numpy as np
 from termcolor import colored
 import os
-from os import path
+from os import path, listdir
 from datetime import datetime
 
 cwd = os.getcwd()
 run_ts = datetime.now()
-ds_name=""
-tests_run=""
+ds_name = ""
+tests_run = ""
+run_number = 0
 
 def plot(graph):
     vlbs = {v: vlb for v, vlb in graph.nodes.data('label')}
@@ -37,7 +38,11 @@ def print_info(info):
     if not os.path.exists(run_folder):
         os.mkdir(run_folder)
     
-    f_name = '{}-{}.log'.format(tests_run, run_ts.strftime("%y-%m-%d %H-%M-%S"))
+    global run_number
+    if run_number == 0:
+        run_number = len(listdir(run_folder)) + 1    
+
+    f_name = 'run_{}-{}.log'.format(run_number, tests_run)
     f_path = path.join(run_folder, f_name)
 
     fil = open(f_path,"a+")
