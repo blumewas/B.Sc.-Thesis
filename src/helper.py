@@ -1,14 +1,13 @@
 import matplotlib.pyplot as plt
 import networkx as nx
 import numpy as np
+import config
 from termcolor import colored
 import os
 from os import path, listdir
 from datetime import datetime
 
 cwd = os.getcwd()
-run_ts = datetime.now()
-ds_name = ""
 tests_run = ""
 run_number = 0
 
@@ -34,7 +33,7 @@ def print_info(info):
     if not os.path.exists(p):
         os.mkdir(p)
 
-    run_folder = path.join(p, '{}'.format(ds_name))
+    run_folder = path.join(p, '{}'.format(config.ds_name))
     if not os.path.exists(run_folder):
         os.mkdir(run_folder)
     

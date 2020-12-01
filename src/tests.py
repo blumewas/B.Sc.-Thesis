@@ -10,11 +10,12 @@ def test_SVM(data):
     print_info(accuracies)
 
 class Tests:
-    def __init__(self, freq_pattern, isomorph_graphs, ds_graph_classes):
+    def __init__(self, freq_pattern, isomorph_graphs, ds_graph_classes, descriptions):
         self._freq = freq_pattern
         self._ds_clss = ds_graph_classes
         self._iso_map = isomorph_graphs
         self._ds_size = len(ds_graph_classes)
+        self._desc = descriptions
 
     def run(self, random=False, graphlet=False, cork=False):
         if random:
@@ -41,7 +42,7 @@ class Tests:
             print_info('\n-----[End Test]-----\n')
 
     def cork(self):    
-        _idxs = CORK(self._freq, self._iso_map, self._ds_clss).get_pattern()
+        _idxs = CORK(self._freq, self._iso_map, self._ds_clss, self._desc).get_pattern()
         print_info("Selected {} pattern using CORK".format(len(_idxs)))
         print_info(_idxs)
         _ds = convert.dataset_to_vectors(self._iso_map, self._ds_clss, _idxs)
