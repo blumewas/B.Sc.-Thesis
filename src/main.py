@@ -18,9 +18,9 @@ from gspan_mining.main import main
 from sklearn.exceptions import ConvergenceWarning
 import warnings
 
-warnings.filterwarnings('once', 'ConvergenceWarning: Solver terminated early.*')
-warnings.filterwarnings('once', 'Solver terminated early.*')
-warnings.filterwarnings('once', category = ConvergenceWarning)
+warnings.filterwarnings('ignore', 'ConvergenceWarning: Solver terminated early.*')
+warnings.filterwarnings('ignore', 'Solver terminated early.*')
+warnings.filterwarnings('ignore', category = ConvergenceWarning)
 
 
 def test(ds_name, minSup, params='', random=False, graphlet=False, cork=False):
