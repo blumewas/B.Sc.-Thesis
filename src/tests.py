@@ -49,8 +49,9 @@ class Tests:
         for percent in [0.2, 0.3, 0.5]:
             print_info('Testing Random Selection with {}%'.format(percent*100))
             _select = int(percent * len(self._freq))
-            if _select > self._ds_size:
-                _select = self._ds_size
+            if _select > self._ds_size * 2:
+                # limit max kernel siye to double the ds size
+                _select = self._ds_size * 2
                 print_info('Would select too many graphs. Limiting it to Dataset-Size ({} graphs)'.format(_select))
             # Pattern language get random pattern
             _it = InlineTimer('Selecting pattern')

@@ -26,7 +26,12 @@ class Graphlets:
         freq_size = len(self._freq)
         print_info('Using pattern language "graphlet-select". Searching subgraphs with min.inc. {} and max.inc. {} vertices'.format(self._min, self._max))
         pattern = []
+        _max_kernel_size = len(self._freq) * 2
         for idx in range(freq_size):
+            if len(pattern) >= _max_kernel_size:
+                # Limit the selected kernel size to double the size of the dataset to speed up the process
+                print_info("Stopping selection with {} selected graphlets".format(_max_kernel_size))
+                return pattern
             num_vert, num_edges = self._freq[idx]
             if num_vert >= self._min and num_vert <= self._max:
                 pattern.append(idx)
