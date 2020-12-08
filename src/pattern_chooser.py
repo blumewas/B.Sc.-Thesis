@@ -27,7 +27,7 @@ class Graphlets:
         print_info('Using pattern language "graphlet-select". Searching subgraphs with min.inc. {} and max.inc. {} vertices'.format(self._min, self._max))
         pattern = []
         for idx in range(freq_size):
-            num_vert = self._freq[idx].get_num_vertices()
+            num_vert, num_edges = self._freq[idx]
             if num_vert >= self._min and num_vert <= self._max:
                 pattern.append(idx)
 
@@ -35,11 +35,11 @@ class Graphlets:
         return pattern
 
 class CORK:
-    def __init__(self, freq_pattern, isomorph_graphs, graph_classes, descriptions):
+    def __init__(self, freq_pattern, isomorph_graphs, graph_classes, descriptions=None):
         self._freq = freq_pattern
         self._isomorphic = isomorph_graphs
         self._ds_classes = graph_classes
-        self._desc = descriptions
+        # self._desc = descriptions
         vecs = []
         for i in graph_classes:
             vecs.append([])
@@ -96,9 +96,10 @@ class CORK:
         freq_count = len(self._freq)
         siblings_map = [0] * freq_count
         for i in range(len(siblings_map)):
-            curr_code = self._freq[i]
+            curr_nodes, curr_edges = self._freq[i]
             for j in range(i+1, freq_count):
-                if len(self._freq[j]) <= len(curr_code):
+                _num_nodes, _num_edges = self._freq[j]
+                if _num_edges <= curr_edges:
                     siblings_map[i] = j
                     break
             if siblings_map[i] == 0:
